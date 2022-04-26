@@ -20,21 +20,23 @@ app.get('/', function (req, res) {
     const apikey = req.headers.apikey;
     if (apikey) {
         res.send('Hello World');
-    }
-    else {
+    } else {
         res.send('Provide API key');
     }
 })
 
-app.post('/home', function (req, res) {
-    console.log(req.body);
-    res.send('Home');
-    // response = {
-    //     first_name: req.body.first_name,
-    //     last_name: req.body.last_name
-    // };
-    // //  console.log(response);
-    // res.end(JSON.stringify(req.body));
+app.get('/api/home', async (req, res) => {
+    try {
+        let resulte = await db.home();
+        const data = {
+            status: true,
+            data: resulte
+        }
+        res.json(data);
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
 })
 
 // get category

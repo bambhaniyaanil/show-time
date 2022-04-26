@@ -16,8 +16,7 @@ chirprdb.all = () => {
         pool.query(`SELECT * FROM login`, (err, res) => {
             if (err) {
                 return rej(err);
-            }
-            else {
+            } else {
                 return reso(res);
             }
         })
@@ -29,8 +28,7 @@ chirprdb.get_category = () => {
         pool.query(`SELECT cat_id as name FROM movies GROUP BY cat_id ORDER BY (cat_id) ASC`, (err, res) => {
             if (err) {
                 return rej(err);
-            }
-            else {
+            } else {
                 return reso(res);
             }
         })
@@ -42,8 +40,7 @@ chirprdb.get_movie = (cat_id) => {
         pool.query(`SELECT * FROM movies where cat_id='${cat_id}' ORDER BY (id) DESC`, async (err, res) => {
             if (err) {
                 return rej(err);
-            }
-            else {
+            } else {
                 let data = res;
 
                 for (let i = 0; i < res.length; i++) {
@@ -51,7 +48,7 @@ chirprdb.get_movie = (cat_id) => {
                     data[i].files = files;
                 }
 
-                return await reso(res);
+                return await reso(data);
             }
         })
     })
@@ -69,14 +66,49 @@ function get_file(id) {
     })
 }
 
-chirprdb.userID = (id) => {
+function get_category() {
     return new Promise((reso, rej) => {
-        pool.query(`SELECT * FROM user WHERE id = ?`, [id], (err, res) => {
+        pool.query(`SELECT cat_id as name FROM movies GROUP BY cat_id ORDER BY (cat_id) ASC`, (err, res) => {
             if (err) {
-                return rej(err);
+                return rej([]);
+            } else {
+                reso(res);
             }
-            else {
-                return reso(res);
+        })
+    })
+}
+
+chirprdb.home = async () => {
+    return new Promise(async (reso, rej) => {
+        const category = await get_category();
+        let returnData = [];
+        for await (const item of category) {
+            const movieLidt = await get_movie_limit_3(item.name);
+            const cat_data = await {
+                name: item.name,
+                list: movieLidt
+            };
+            await returnData.push(cat_data);
+
+        }
+
+        return await reso(returnData);
+    })
+}
+
+async function get_movie_limit_3(id) {
+    return new Promise((reso, rej) => {
+        pool.query(`SELECT * FROM movies where cat_id='${id}' ORDER BY (id) DESC LIMIT 3`, async (err, res) => {
+            if (err) {
+                return rej([]);
+            } else {
+                let data = res;
+                for (let i = 0; i < res.length; i++) {
+                    const files = await get_file(data[i].id);
+                    data[i].files = files;
+                }
+
+                return await reso(data);
             }
         })
     })
