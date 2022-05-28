@@ -41,6 +41,7 @@ app.get('/api/home', async (req, res) => {
 
 // get category
 app.get('/api/get_category', async (req, res) => {
+
     try {
         let resulte = await db.get_category();
         const data = {
