@@ -37,7 +37,7 @@ chirprdb.get_category = () => {
 
 chirprdb.get_movie = (cat_id) => {
     return new Promise((reso, rej) => {
-        pool.query(`SELECT * FROM movies where cat_id='${cat_id}' ORDER BY (id) DESC`, async (err, res) => {
+        pool.query(`SELECT * FROM movies where cat_id='${cat_id}' ORDER BY (id) DESC LIMIT 20`, async (err, res) => {
             if (err) {
                 return rej(err);
             } else {
